@@ -118,10 +118,16 @@ def do_publish():
 @app.route("/items")
 # 陈列物品的编号,标题和价格,以及跳转到详情页
 def items():
-    conn=get_db()
-    rows=conn.execute("SELECT * FROM items").fetchall()
+    q = request.args.get("q")          # 取搜索词，没搜时是 None
+    conn = get_db()
+    if q:
+        rows = conn.execute(
+            "SELECT * FROM items WHERE title LIKE ?", (f"%{q}%",)
+        ).fetchall()
+    else:
+        rows = conn.execute("SELECT * FROM items").fetchall()
     conn.close()
-    result="全部商品:<br>"
+    result="相关书籍:<br>"
     for row in rows:
         result+=f"编号:{row['id']} 标题:{row['title']} 价格:{row['price']} 卖家:{row['seller']} <a href='/item/{row['id']}'>查看详情</a><br>"
     return result
