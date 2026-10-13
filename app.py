@@ -1,8 +1,9 @@
-from flask import Flask, render_template, request, redirect
+from flask import Flask, render_template, request, redirect,session
 import sqlite3
 
 app = Flask(__name__)
 
+app.secret_key="campus-market-2026"
 # 连接数据库（文件不存在会自动创建）
 def get_db():
     conn = sqlite3.connect("market.db")
@@ -31,7 +32,8 @@ def init_db():
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             title TEXT NOT NULL,
             price REAL NOT NULL,
-            description TEXT
+            description TEXT,
+            seller TEXT NOT NULL
         )
     """)
     conn.commit()
@@ -88,7 +90,8 @@ def do_login():
         return redirect("/login?msg=账号不存在")
     if row["password"]!=password:
         return redirect("/login?msg=密码错误")
-    return redirect("/login?msg=登陆成功")
+    session["account"]=account
+    return redirect("/")
 
 @app.route("/publish")
 def publish():
@@ -96,26 +99,31 @@ def publish():
     return render_template("publish.html",msg=msg)
 
 @app.route("/do_publish",methods=["POST"])
+# 发布商品,将商品信息载入数据库
 def do_publish():
+    if "account" not in session:
+        return redirect("/login?msg=请先完成登录")
     title=request.form.get("title")
     price=float(request.form.get("price"))
     description=request.form.get("description")
+    seller=request.form.get("seller")
     conn=get_db()
-    conn.execute("INSERT INTO items (title,price,description) VALUES (?,?,?)",
-                 (title,price,description)
+    conn.execute("INSERT INTO items (title,price,description,seller) VALUES (?,?,?,?)",
+                 (title,price,description,seller)
                  )
     conn.commit()
     conn.close()
     return redirect("/publish?msg=发布成功")
 
 @app.route("/items")
+# 陈列物品的编号,标题和价格,以及跳转到详情页
 def items():
     conn=get_db()
     rows=conn.execute("SELECT * FROM items").fetchall()
     conn.close()
-    result="全部商品"
+    result="全部商品:<br>"
     for row in rows:
-        result+=f"编号:{row['id']}标题:{row['title']}价格:{row['price']}<a href='/item/{row['id']}'>查看详情</a><br>"
+        result+=f"编号:{row['id']} 标题:{row['title']} 价格:{row['price']} 卖家:{row['seller']} <a href='/item/{row['id']}'>查看详情</a><br>"
     return result
 
 @app.route("/item/<int:item_id>")
@@ -127,6 +135,11 @@ def item_detail(item_id):
         return "商品不存在"
     else:
         return f"标题:{row['title']}<br>价格:{row['price']}<br>描述:{row['description']}<br>"
+
+@app.route("/logout")
+def logout():
+    session.clear()
+    return redirect("/")
 
 if __name__ == "__main__":
     init_db()      # 启动服务前先建表
