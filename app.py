@@ -25,6 +25,14 @@ def init_db():
             account TEXT NOT NULL,
             password TEXT NOT NULL
         )
+    """)    
+    conn.execute("""
+        CREATE TABLE IF NOT EXISTS items (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            title TEXT NOT NULL,
+            price REAL NOT NULL,
+            description TEXT
+        )
     """)
     conn.commit()
     conn.close()
@@ -69,16 +77,12 @@ def do_register():
 def login():
     msg=request.args.get("msg")
     return render_template("login.html",msg=msg)
-
 @app.route("/do_login",methods=["POST"])
 def do_login():
     account=request.form.get("account")
     password=request.form.get("password")
-
     conn=get_db()
     row=conn.execute("SELECT * FROM accounts WHERE account=?",(account,)).fetchone()
-    print(row)        # 看看 row 长什么样
-    print(type(row))  # 看看它的类型
     conn.close()
     if row is None:
         return redirect("/login?msg=账号不存在")
@@ -86,6 +90,43 @@ def do_login():
         return redirect("/login?msg=密码错误")
     return redirect("/login?msg=登陆成功")
 
+@app.route("/publish")
+def publish():
+    msg=request.args.get("msg")
+    return render_template("publish.html",msg=msg)
+
+@app.route("/do_publish",methods=["POST"])
+def do_publish():
+    title=request.form.get("title")
+    price=float(request.form.get("price"))
+    description=request.form.get("description")
+    conn=get_db()
+    conn.execute("INSERT INTO items (title,price,description) VALUES (?,?,?)",
+                 (title,price,description)
+                 )
+    conn.commit()
+    conn.close()
+    return redirect("/publish?msg=发布成功")
+
+@app.route("/items")
+def items():
+    conn=get_db()
+    rows=conn.execute("SELECT * FROM items").fetchall()
+    conn.close()
+    result="全部商品:"
+    for row in rows:
+        result+=f"编号:{row["id"]} 标题:{row["title"]} 价格:{row["price"]}<a href='/items/{row['id']}'>查看详情</a><br>"
+    return result
+
+@app.route("/item/<int:item_id>")
+def item_detail(item_id):
+    conn=get_db()
+    row=conn.execute("SELECT * FROM items WHERE id=?",(item_id,)).fetchone()
+    conn.close()
+    if row is None:
+        return "商品不存在"
+    else:
+        return f"标题:{row["title"]}<br>价格:{row["price"]}<br>描述:{row["description"]}"
 
 if __name__ == "__main__":
     init_db()      # 启动服务前先建表
