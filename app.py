@@ -113,9 +113,9 @@ def items():
     conn=get_db()
     rows=conn.execute("SELECT * FROM items").fetchall()
     conn.close()
-    result="全部商品:"
+    result="全部商品"
     for row in rows:
-        result+=f"编号:{row["id"]} 标题:{row["title"]} 价格:{row["price"]}<a href='/items/{row['id']}'>查看详情</a><br>"
+        result+=f"编号:{row['id']}标题:{row['title']}价格:{row['price']}<a href='/item/{row['id']}'>查看详情</a><br>"
     return result
 
 @app.route("/item/<int:item_id>")
@@ -126,7 +126,7 @@ def item_detail(item_id):
     if row is None:
         return "商品不存在"
     else:
-        return f"标题:{row["title"]}<br>价格:{row["price"]}<br>描述:{row["description"]}"
+        return f"标题:{row['title']}<br>价格:{row['price']}<br>描述:{row['description']}<br>"
 
 if __name__ == "__main__":
     init_db()      # 启动服务前先建表
