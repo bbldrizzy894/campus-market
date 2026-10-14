@@ -153,4 +153,4 @@ def logout():
 
 if __name__ == "__main__":
     init_db()      # 启动服务前先建表
-    app.run(debug=True)
+    app.run()

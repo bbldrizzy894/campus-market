@@ -4,6 +4,7 @@
 
 ## 功能
 
+在线演示：https://shuijiaofirst123.pythonanywhere.com
 用户注册 / 登录 / 退出（session 保持登录状态）
 发布商品（标题、价格、描述，自动记录卖家）
 商品列表与详情页
