@@ -1,12 +1,16 @@
 from flask import Flask, render_template, request, redirect,session
 import sqlite3
+import os
+
+# 数据库文件的绝对路径（和 app.py 同目录，不管谁运行都指向同一个文件）
+DB_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "market.db")
 
 app = Flask(__name__)
 
 app.secret_key="campus-market-2026"
 # 连接数据库（文件不存在会自动创建）
 def get_db():
-    conn = sqlite3.connect("market.db")
+    conn = sqlite3.connect(DB_PATH)
     conn.row_factory = sqlite3.Row  # 让查询结果可以像字典一样用
     return conn
 
