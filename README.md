@@ -25,17 +25,20 @@
 5. 浏览器访问 http://127.0.0.1:5000
 
 ## 项目结构
-campus-market->
-app.py
-.gitignore
-template->
-index.html
-login.html
-publish.html
-register.html
+```text
+campus-market/
+├── app.py
+├── .gitignore
+└── templates/
+    ├── index.html
+    ├── login.html
+    ├── publish.html
+    └── register.html
+```
 
 ## 后续计划
 
 商品图片上传
 分类与筛选
 部署到服务器，提供在线访问
+页面截图
