@@ -5,9 +5,12 @@
     <title>我的第一个表单</title>
 </head>
 <body>
+    {% if msg %}
+    <p style="color: red;">{{ msg }}</p>
+    {% endif %}
     <p>
         <a href="/">首页</a>
-        <a href="items">商品列表</a>
+        <a href="/items">商品列表</a>
         <a href="/publish">发布商品</a>
         <a href="/register">注册</a>
         <a href="/login">登录</a>

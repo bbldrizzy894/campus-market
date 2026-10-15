@@ -40,6 +40,7 @@ def init_db():
             title TEXT NOT NULL,
             price REAL NOT NULL,
             description TEXT,
+            seller NOT NULL,
             image TEXT
         )
     """)
@@ -48,7 +49,8 @@ def init_db():
 
 @app.route("/")
 def index():
-    return render_template("index.html")
+    msg=request.args.get("msg")
+    return render_template("index.html",msg=msg)
 
 @app.route("/hello")
 def hello():
@@ -98,7 +100,7 @@ def do_login():
     if row["password"]!=password:
         return redirect("/login?msg=密码错误")
     session["account"]=account
-    return redirect("/")
+    return redirect("/?msg=登陆成功")
 
 @app.route("/publish")
 def publish():
@@ -113,6 +115,7 @@ def do_publish():
     title=request.form.get("title")
     price=float(request.form.get("price"))
     description=request.form.get("description")
+    seller=request.form.get("seller")
     # 加图片
     image_file=request.files.get("image")
     image_name=""
@@ -120,8 +123,8 @@ def do_publish():
         image_name=secure_filename(image_file.filename)
         image_file.save(os.path.join(UPLOAD_FOLDER,image_name))
     conn=get_db()
-    conn.execute("INSERT INTO items (title,price,description,image) VALUES (?,?,?,?)",
-                 (title,price,description,image_name)
+    conn.execute("INSERT INTO items (title,price,description,seller,image) VALUES (?,?,?,?,?)",
+                 (title,price,description,seller,image_name)
                  )
     conn.commit()
     conn.close()
@@ -141,9 +144,7 @@ def items():
     conn.close()
     result="相关书籍:<br>"
     
-    for row in rows:
-        result+=f"编号:{row['id']} 标题:{row['title']} 价格:{row['price']} <a href='/item/{row['id']}'>查看详情</a><br>"
-    return result
+    return render_template("items.html",items=rows,q=q)
 
 @app.route("/item/<int:item_id>")
 def item_detail(item_id):
@@ -154,7 +155,7 @@ def item_detail(item_id):
         return "商品不存在"
     else:
         img_html=f'<img src="/static/uploads/{row['image']}" width="300">' if row['image'] else ""
-        return f"标题:{row['title']}<br>价格:{row['price']}<br>描述:{row['description']}<br>{img_html}"
+        return f"标题:{row['title']}<br>价格:{row['price']}<br>描述:{row['description']}卖家<br>{row['seller']}<br>{img_html}"
 
 @app.route("/logout")
 def logout():
@@ -165,4 +166,4 @@ init_db()      # 启动服务前先建表
 
 if __name__ == "__main__":
 
-    app.run()
+    app.run(debug=True)

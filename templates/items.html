@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <p><a href="/">首页</a> <a href="/publish">发布商品</a></p>
+    <!-- 搜索框 -->
+    <form action="/items" method="get">
+        <input type="text" name="q" placeholder="搜索书名" value="{{q}}">
+        <button type="submit">搜索</button>
+    </form>
+    {% for item in items %}
+    <p>
+        <a href="/item/{{item['id']}}">{{item['title']}}</a>
+        价格:{{item["price"]}}
+        卖家:{{item["seller"]}}
+    </p>
+    {% endfor %}
+
+    {% if not items %}
+    <p>未找到相关商品</p>
+    {% endif %}
+
+</body>
+</html>
