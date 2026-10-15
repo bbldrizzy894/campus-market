@@ -1,7 +1,10 @@
 from flask import Flask, render_template, request, redirect,session
 import sqlite3
+from werkzeug.utils import secure_filename 
 import os
 
+# static uploads的绝对路径
+UPLOAD_FOLDER = os.path.join(os.path.dirname(os.path.abspath(__file__)), "static", "uploads")
 # 数据库文件的绝对路径（和 app.py 同目录，不管谁运行都指向同一个文件）
 DB_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "market.db")
 
@@ -37,7 +40,7 @@ def init_db():
             title TEXT NOT NULL,
             price REAL NOT NULL,
             description TEXT,
-            seller TEXT NOT NULL
+            image TEXT
         )
     """)
     conn.commit()
@@ -110,10 +113,15 @@ def do_publish():
     title=request.form.get("title")
     price=float(request.form.get("price"))
     description=request.form.get("description")
-    seller=request.form.get("seller")
+    # 加图片
+    image_file=request.files.get("image")
+    image_name=""
+    if image_file and image_file.filename!="":
+        image_name=secure_filename(image_file.filename)
+        image_file.save(os.path.join(UPLOAD_FOLDER,image_name))
     conn=get_db()
-    conn.execute("INSERT INTO items (title,price,description,seller) VALUES (?,?,?,?)",
-                 (title,price,description,seller)
+    conn.execute("INSERT INTO items (title,price,description,image) VALUES (?,?,?,?)",
+                 (title,price,description,image_name)
                  )
     conn.commit()
     conn.close()
@@ -132,8 +140,9 @@ def items():
         rows = conn.execute("SELECT * FROM items").fetchall()
     conn.close()
     result="相关书籍:<br>"
+    
     for row in rows:
-        result+=f"编号:{row['id']} 标题:{row['title']} 价格:{row['price']} 卖家:{row['seller']} <a href='/item/{row['id']}'>查看详情</a><br>"
+        result+=f"编号:{row['id']} 标题:{row['title']} 价格:{row['price']} <a href='/item/{row['id']}'>查看详情</a><br>"
     return result
 
 @app.route("/item/<int:item_id>")
@@ -144,7 +153,8 @@ def item_detail(item_id):
     if row is None:
         return "商品不存在"
     else:
-        return f"标题:{row['title']}<br>价格:{row['price']}<br>描述:{row['description']}<br>"
+        img_html=f'<img src="/static/uploads/{row['image']}" width="300">' if row['image'] else ""
+        return f"标题:{row['title']}<br>价格:{row['price']}<br>描述:{row['description']}<br>{img_html}"
 
 @app.route("/logout")
 def logout():

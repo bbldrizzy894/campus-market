@@ -9,12 +9,12 @@
     {%if msg%}
     <p style="color: aquamarine;">{{msg}}</p>
     {%endif%}
-    <form action="do_publish" method="post">
+    <form action="do_publish" method="post" enctype="multipart/form-data">
         标题:<input type="text" name="title"><br>
         价格:<input type="text" name="price"><br>
         描述:<textarea name="description"></textarea><br>
-        卖家:<input type="text" name="seller"><br>
-        <button type="submit">提交</button>
+        图片:<input type="file" name="image"><br>
+        <button type="submit">发布</button>
     </form>
     
 </body>
