@@ -9,7 +9,7 @@
     <p><a href="/">首页</a> <a href="/publish">发布商品</a></p>
     <!-- 搜索框 -->
     <form action="/items" method="get">
-        <input type="text" name="q" placeholder="搜索书名" value="{{q}}">
+        <input type="text" name="q" placeholder="搜索书名" value="{{q or ''}}">
         <button type="submit">搜索</button>
     </form>
     {% for item in items %}
