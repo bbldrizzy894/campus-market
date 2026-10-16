@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=<device-width>, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <p><a href="/items">← 返回列表</a></p>
+    {% if msg %}
+    <p style="color: aquamarine;">{{msg}}</p>
+    {% endif %}
+    <h2>{{item["title"]}}</h2>
+    <p>价格：{{ item['price'] }}</p>
+    <p>描述：{{ item['description'] }}</p>
+    <p>卖家：{{ item['seller'] }}</p>
+    {% if item['image'] %}
+    <img src="/static/uploads/{{item['image']}}" width="300">
+    {% endif %}
+</body>
+</html>

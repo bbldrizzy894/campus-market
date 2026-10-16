@@ -131,6 +131,7 @@ def do_publish():
     return redirect("/publish?msg=发布成功")
 
 @app.route("/items")
+# items路由的作用:获得q,rows 打开items.html
 # 陈列物品的编号,标题和价格,以及跳转到详情页
 def items():
     q = request.args.get("q")          # 取搜索词，没搜时是 None
@@ -142,21 +143,19 @@ def items():
     else:
         rows = conn.execute("SELECT * FROM items").fetchall()
     conn.close()
-    result="相关书籍:<br>"
     
     return render_template("items.html",items=rows,q=q)
-
+# 动态路由
 @app.route("/item/<int:item_id>")
 def item_detail(item_id):
+    msg=request.args.get("msg")
     conn=get_db()
     row=conn.execute("SELECT * FROM items WHERE id=?",(item_id,)).fetchone()
     conn.close()
     if row is None:
         return "商品不存在"
     else:
-        img_html=f'<img src="/static/uploads/{row['image']}" width="300">' if row['image'] else ""
-        return f"标题:{row['title']}<br>价格:{row['price']}<br>描述:{row['description']}卖家<br>{row['seller']}<br>{img_html}"
-
+        return render_template("detail.html",item=row,msg=msg)
 @app.route("/logout")
 def logout():
     session.clear()
@@ -166,4 +165,4 @@ init_db()      # 启动服务前先建表
 
 if __name__ == "__main__":
 
-    app.run(debug=True)
+    app.run()
