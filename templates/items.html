@@ -17,6 +17,9 @@
         <a href="/item/{{item['id']}}">{{item['title']}}</a>
         价格:{{item["price"]}}
         卖家:{{item["seller"]}}
+        {% if session.get("account")==item["seller"] %}
+            <a href="/delete/{{item['id']}}">删除</a>
+        {% endif %}
     </p>
     {% endfor %}
 

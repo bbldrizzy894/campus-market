@@ -110,6 +110,7 @@ def publish():
 @app.route("/do_publish",methods=["POST"])
 # 发布商品,将商品信息载入数据库
 def do_publish():
+    # 未登录
     if "account" not in session:
         return redirect("/login?msg=请先完成登录")
     title=request.form.get("title")
@@ -156,10 +157,24 @@ def item_detail(item_id):
         return "商品不存在"
     else:
         return render_template("detail.html",item=row,msg=msg)
+    
 @app.route("/logout")
 def logout():
     session.clear()
     return redirect("/")
+
+@app.route("/delete/<int:item_id>")
+def delete_item(item_id):
+    if "account" not in session:
+        return redirect("/login?msg=请先完成登录")
+    conn=get_db()
+    row=conn.execute("SELECT * FROM items WHERE id=?",(item_id,)).fetchone()
+    if not row or session["account"]!=row["seller"]:
+        return redirect("/items?msg=账号不存在")
+    conn.execute("DELETE FROM items WHERE id=?",(item_id,))
+    conn.commit()
+    conn.close()
+    return redirect("/items?msg=删除成功")
 
 init_db()      # 启动服务前先建表
 
