@@ -1,14 +1,9 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-</head>
-<body>
+{% extends "base.html" %}
+{% block content %}
     {%if msg%}
     <p style="color: aquamarine;">{{msg}}</p>
     {%endif%}
+    <p><a href="/">首页</a><a href="/items">商品列表</a><a href="/publish">发布商品</a><a href="logout">退出</a>
     <form action="do_publish" method="post" enctype="multipart/form-data">
         标题:<input type="text" name="title"><br>
         价格:<input type="text" name="price"><br>
@@ -17,6 +12,4 @@
         图片:<input type="file" name="image"><br>
         <button type="submit">发布</button>
     </form>
-    
-</body>
-</html>
+{% endblock %}

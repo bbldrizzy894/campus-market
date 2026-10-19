@@ -104,6 +104,8 @@ def do_login():
 
 @app.route("/publish")
 def publish():
+    if "account" not in session:
+        return redirect("/login?msg=请先完成登录")
     msg=request.args.get("msg")
     return render_template("publish.html",msg=msg)
 
@@ -114,9 +116,13 @@ def do_publish():
     if "account" not in session:
         return redirect("/login?msg=请先完成登录")
     title=request.form.get("title")
-    price=float(request.form.get("price"))
+    price=request.form.get("price")
+    if price=="":
+        return redirect("/publish?请输入价格")
+    else:
+        price=float(request.form.get("price"))
     description=request.form.get("description")
-    seller=request.form.get("seller")
+    seller=session("account")
     # 加图片
     image_file=request.files.get("image")
     image_name=""
@@ -169,6 +175,12 @@ def delete_item(item_id):
         return redirect("/login?msg=请先完成登录")
     conn=get_db()
     row=conn.execute("SELECT * FROM items WHERE id=?",(item_id,)).fetchone()
+    if row["image"]:
+        try:
+            os.remove(os.path.join(UPLOAD_FOLDER,row["image"]))
+        except OSError:\
+        pass
+            
     if not row or session["account"]!=row["seller"]:
         return redirect("/items?msg=账号不存在")
     conn.execute("DELETE FROM items WHERE id=?",(item_id,))

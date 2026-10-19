@@ -1,11 +1,6 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=<device-width>, initial-scale=1.0">
-    <title>Document</title>
-</head>
-<body>
+{% extends "base.html" %}
+{% block contend %}
+    <p><a href="/">首页</a><a href="/items">商品列表</a><a href="/publish">发布商品</a><a href="logout">退出</a>
     <p><a href="/items">← 返回列表</a></p>
     {% if msg %}
     <p style="color: aquamarine;">{{msg}}</p>
@@ -17,5 +12,4 @@
     {% if item['image'] %}
     <img src="/static/uploads/{{item['image']}}" width="300">
     {% endif %}
-</body>
-</html>
+{% endblock %}

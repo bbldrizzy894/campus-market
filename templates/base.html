@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{% block title %}校园二手书市{% endblock %}</title>
+</head>
+<body>
+    <p>
+        <a href="/">首页</a>
+        <a href="/items">商品列表</a>
+        {% if session.get("account") %}
+        <a href="/publish">发布商品</a>
+        {% else %}
+        <a href="/login?msg=请先完成登录">发布商品</a>
+        {% endif %}
+        {% if session.get("account") %}
+            你好{{session.get("account")}}!<a href="logout">退出</a>
+        {% else %}
+            <a href="/login">登录</a>
+            <a href="/register">注册</a>
+        {% endif %}
+    </p>
+    {% block content %}
+    {% endblock %}
+</body>
+</html>

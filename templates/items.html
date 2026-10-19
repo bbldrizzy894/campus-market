@@ -1,12 +1,5 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-</head>
-<body>
-    <p><a href="/">首页</a> <a href="/publish">发布商品</a></p>
+{% extends "base.html" %}
+{% block content %}
     <!-- 搜索框 -->
     <form action="/items" method="get">
         <input type="text" name="q" placeholder="搜索书名" value="{{q or ''}}">
@@ -26,6 +19,4 @@
     {% if not items %}
     <p>未找到相关商品</p>
     {% endif %}
-
-</body>
-</html>
+{% endblock %}

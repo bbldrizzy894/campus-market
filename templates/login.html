@@ -1,10 +1,5 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-</head>
+{% extends "base.html" %}
+{% block content %}
 <body>
     {% if msg %}
     <p style="color: red;">{{ msg }}</p>
@@ -14,5 +9,4 @@
         密码：<input type="password" name="password"><br>
         <button type="submit">登录</button>
     </form>
-</body>
-</html>
+{% endblock %}
