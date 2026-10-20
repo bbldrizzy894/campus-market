@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block content %}
+    {% if msg %}
+    <p style="color: aquamarine;">{{msg}}</p>
+    {% endif %}
+    <form action="/do_edit/{{item['id']}}" method="post">
+        标题:<input type="text" name="title" value="{{item['title']}}"><br>
+        价格:<input type="text" name="price" value="{{item['price']}}"><br>
+        描述:<textarea name="description"></textarea><br>
+        <button type="submit">发布</button>
+    </form>
+{% endblock %}

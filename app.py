@@ -17,7 +17,7 @@ def get_db():
     conn.row_factory = sqlite3.Row  # 让查询结果可以像字典一样用
     return conn
 
-# 启动时建表（表已存在则跳过）
+# 启动时建表（表已存在则跳过）should do init_db()
 def init_db():
     conn = get_db()
     conn.execute("""
@@ -80,6 +80,7 @@ def do_register():
     account=request.form.get("account")
     password=request.form.get("password")
     conn=get_db()
+    # 新增INSERT
     conn.execute("INSERT INTO accounts (account,password) VALUES (?,?)",(account,password))
     conn.commit()
     conn.close()
@@ -122,7 +123,7 @@ def do_publish():
     else:
         price=float(request.form.get("price"))
     description=request.form.get("description")
-    seller=session("account")
+    seller=session.get("account")
     # 加图片
     image_file=request.files.get("image")
     image_name=""
@@ -187,6 +188,47 @@ def delete_item(item_id):
     conn.commit()
     conn.close()
     return redirect("/items?msg=删除成功")
+
+@app.route("/edit/<int:item_id>")
+def edit(item_id):
+    if "account" not in session:
+        return redirect("/login?msg=请先完成登录")
+    msg=request.args.get("msg")
+    conn=get_db()
+    row=conn.execute("SELECT * FROM items WHERE id=?",(item_id,)).fetchone()
+    conn.close()
+    if row is None:
+        return redirect("/items?msg=商品不存在")
+    if session["account"]==row["seller"]:
+        return render_template("edit.html",item=row,msg=msg)
+    else:
+        return redirect("/items?msg=没有权限")
+
+@app.route("/do_edit/<int:item_id>",methods=["POST"])
+def do_edit(item_id):
+    if "account" not in session:
+        return redirect("/login?msg=请先完成登录")
+    conn=get_db()
+    row=conn.execute("SELECT * FROM items WHERE id=?",(item_id,)).fetchone()
+    if row is None or session["account"]!=row["seller"]:
+        conn.close()
+        return redirect("/items?msg=没有权限")
+    title=request.form.get("title")
+    price_str=request.form.get("price")
+    if price_str =="":
+        return redirect(f"/edit/{item_id}?msg=输入不能为空")
+    try:
+        price=float(price_str)
+    except ValueError:
+        return redirect(f"/edit/{item_id}?msg=价格必须为数字")
+    description=request.form.get("description")
+    # 更新用UPDATE
+    conn.execute("UPDATE items SET title=?,price=?,description=? WHERE id=?",
+                 (title,price,description,item_id))
+    conn.commit()
+    conn.close()
+    return redirect(f"/item/{item_id}?msg=修改成功")
+
 
 init_db()      # 启动服务前先建表
 
