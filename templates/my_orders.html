@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block content %}
+    {% if msg %}
+    <p style="color: red;">{{ msg }}</p>
+    {% endif %}
+    我想要:
+    {% for item in items %}
+    <p>序号:{{item["id"]}}</p><p>标题:{{item["title"]}}</p> <p>价格:{{item["price"]}}</p> <p>创建时间:{{item["create_at"]}}</p><a href="/del_order/{{item["id"]}}">删除</a>
+    {% endfor %}
+{% endblock %}

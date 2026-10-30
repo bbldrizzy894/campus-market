@@ -43,3 +43,11 @@ campus-market/
 分类与筛选
 部署到服务器，提供在线访问
 页面截图
+2026.10.30
+1.datetime方法获取时间
+2.数据库合并查找方法:
+SELECT 1.? 2.? FROM ... JION ... ON 条件
+3.完整守卫顺序(以do_del为例):
+①登录检查"account" not in session
+②SELECT查目标行看是否为None,为None则redirect
+③权限检查 do_del必须是本人进行删除所以要有session.get("account")==row["buyer"]

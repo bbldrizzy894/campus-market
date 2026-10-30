@@ -2,7 +2,7 @@ from flask import Flask, render_template, request, redirect,session
 import sqlite3
 from werkzeug.utils import secure_filename 
 import os
-
+from datetime import datetime
 # static uploads的绝对路径
 UPLOAD_FOLDER = os.path.join(os.path.dirname(os.path.abspath(__file__)), "static", "uploads")
 # 数据库文件的绝对路径（和 app.py 同目录，不管谁运行都指向同一个文件）
@@ -44,6 +44,14 @@ def init_db():
             image TEXT
         )
     """)
+    conn.execute("""
+        CREATE TABLE IF NOT EXISTS orders(
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            order_id INTEGER,
+            buyer TEXT,
+            create_at TEXT
+        )
+""")
     conn.commit()
     conn.close()
 
@@ -84,7 +92,7 @@ def do_register():
     conn.execute("INSERT INTO accounts (account,password) VALUES (?,?)",(account,password))
     conn.commit()
     conn.close()
-    return "注册成功,快去/login登录!"
+    return redirect("/login?msg=注册成功,快去/login登录!")
 @app.route("/login")
 def login():
     msg=request.args.get("msg")
@@ -95,7 +103,7 @@ def do_login():
     password=request.form.get("password")
     conn=get_db()
     row=conn.execute("SELECT * FROM accounts WHERE account=?",(account,)).fetchone()
-    conn.close()
+    conn.close()    
     if row is None:
         return redirect("/login?msg=账号不存在")
     if row["password"]!=password:
@@ -168,7 +176,7 @@ def item_detail(item_id):
 @app.route("/logout")
 def logout():
     session.clear()
-    return redirect("/")
+    return render_template("index.html")
 
 @app.route("/delete/<int:item_id>")
 def delete_item(item_id):
@@ -229,6 +237,58 @@ def do_edit(item_id):
     conn.close()
     return redirect(f"/item/{item_id}?msg=修改成功")
 
+@app.route("/do_buy/<int:order_id>")
+def do_buy(order_id):
+    if "account" not in session:
+        return redirect("/login?msg=请先完成登录")
+    conn=get_db()
+    row=conn.execute("SELECT * FROM items WHERE id=?",(order_id,)).fetchone()
+    if row is None:
+        conn.close()
+        return redirect("/items?msg=商品不存在")
+    if session.get("account")!=row["seller"]:
+        create_at=datetime.now().strftime("%Y-%m-%d %H:%M")
+        conn.execute("INSERT INTO orders (order_id,buyer,create_at) VALUES (?,?,?)",
+                     (order_id,session.get("account"),create_at))
+        conn.commit()
+        conn.close()
+        return redirect("/my_orders?msg=下单成功")
+    else:
+        conn.close()
+        return redirect("/my_orders?msg=您不能下单自己的商品")
+        
+    
+@app.route("/my_orders")
+def my_orders():
+    msg=request.args.get("msg")
+    if "account" not in session:
+        return redirect("/login?msg=请先完成登录")
+    conn=get_db()
+    rows=conn.execute("SELECT orders.*,items.title,items.price FROM orders JOIN items ON order_id=items.id WHERE orders.buyer=?",
+                      (session.get("account"),)).fetchall()
+    if not rows:
+        conn.close()
+        return render_template("my_orders.html",items=rows,msg="购物车为空")
+    else:
+        conn.close()
+        return render_template("my_orders.html",items=rows,msg=msg)
+
+@app.route("/del_order/<int:order_id>")
+def del_order(order_id):
+    if "account" not in session:
+            return redirect("/login?msg=请先完成登录")
+    conn=get_db()
+    row=conn.execute("SELECT * FROM orders WHERE id=?",(order_id,)).fetchone()
+    if row is None:
+        conn.close()
+        return redirect("/my_orders?msg=购物车为空")
+    if session.get("account")!=row["buyer"]:
+        conn.close()
+        return redirect("/login?msg=没有权限")
+    conn.execute("DELETE FROM orders WHERE id=?",(order_id,))
+    conn.commit()
+    conn.close()
+    return redirect("/my_orders?msg=删除成功")
 
 init_db()      # 启动服务前先建表
 

@@ -2,16 +2,19 @@
 {% block content %}
     <p><a href="/items">← 返回列表</a></p>
     {% if msg %}
-    <p style="color: aquamarine;">{{msg}}</p>
+        <p style="color: aquamarine;">{{msg}}</p>
     {% endif %}
-    <h2>{{item["title"]}}</h2>
-    <p>价格：{{ item['price'] }}</p>
-    <p>描述：{{ item['description'] }}</p>
-    <p>卖家：{{ item['seller'] }}</p>
+        <h2>{{item["title"]}}</h2>
+        <p>价格：{{ item['price'] }}</p>
+        <p>描述：{{ item['description'] }}</p>
+        <p>卖家：{{ item['seller'] }}</p>
     {% if item['image'] %}
-    <img src="/static/uploads/{{item['image']}}" width="300">
+        <img src="/static/uploads/{{item['image']}}" width="300">
     {% endif %}
     {% if session["account"]==item["seller"] %}
-    <a href="/edit/{{item['id']}}">编辑</a>
+        <a href="/edit/{{item['id']}}">编辑</a>
+    {% endif %}
+    {% if session.get("account")!=item["seller"] %}
+    <a href="/do_buy/{{item["id"]}}">我想要</a>
     {% endif %}
 {% endblock %}
