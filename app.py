@@ -237,19 +237,19 @@ def do_edit(item_id):
     conn.close()
     return redirect(f"/item/{item_id}?msg=修改成功")
 
-@app.route("/do_buy/<int:order_id>")
-def do_buy(order_id):
+@app.route("/do_buy/<int:item_id>")
+def do_buy(item_id):
     if "account" not in session:
         return redirect("/login?msg=请先完成登录")
     conn=get_db()
-    row=conn.execute("SELECT * FROM items WHERE id=?",(order_id,)).fetchone()
+    row=conn.execute("SELECT * FROM items WHERE id=?",(item_id,)).fetchone()
     if row is None:
         conn.close()
         return redirect("/items?msg=商品不存在")
     if session.get("account")!=row["seller"]:
         create_at=datetime.now().strftime("%Y-%m-%d %H:%M")
         conn.execute("INSERT INTO orders (order_id,buyer,create_at) VALUES (?,?,?)",
-                     (order_id,session.get("account"),create_at))
+                     (item_id,session.get("account"),create_at))
         conn.commit()
         conn.close()
         return redirect("/my_orders?msg=下单成功")
@@ -294,4 +294,4 @@ init_db()      # 启动服务前先建表
 
 if __name__ == "__main__":
 
-    app.run()
+    app.run(debug=True)
