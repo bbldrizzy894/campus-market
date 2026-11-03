@@ -4,17 +4,24 @@
     {% if msg %}
         <p style="color: aquamarine;">{{msg}}</p>
     {% endif %}
-        <h2>{{item["title"]}}</h2>
-        <p>价格：{{ item['price'] }}</p>
-        <p>描述：{{ item['description'] }}</p>
-        <p>卖家：{{ item['seller'] }}</p>
-    {% if item['image'] %}
-        <img src="/static/uploads/{{item['image']}}" width="300">
-    {% endif %}
-    {% if session["account"]==item["seller"] %}
-        <a href="/edit/{{item['id']}}">编辑</a>
-    {% endif %}
-    {% if session.get("account")!=item["seller"] %}
-    <a href="/do_buy/{{item["id"]}}">我想要</a>
-    {% endif %}
+    <table class="table table-striped table-hover">
+        <thead>
+            <tr><td>标题</td><td>价格</td><td>描述</td><td>卖家</td></tr>
+        </thead>
+        <tr>
+            <td>{{item["title"]}}</td>
+            <td>{{ item['price'] }}</td>
+            <td>{{ item['description'] }}</td>
+            <td>{{ item['seller'] }}</td>
+        <td>{% if item['image'] %}
+            <img src="/static/uploads/{{item['image']}}" width="80">
+        {% endif %}</td>
+        <td>{% if session["account"]==item["seller"] %}
+            <a class="btn btn-primary btn-sm" href="/edit/{{item['id']}}">编辑</a>
+        {% endif %}</td>
+        <td>{% if session.get("account")!=item["seller"] %}
+        <a class="btn btn-primary btn-sm" href="/do_buy/{{item["id"]}}">我想要</a>
+        {% endif %}</td>
+        </tr>
+    </table>
 {% endblock %}
