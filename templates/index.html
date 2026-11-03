@@ -13,4 +13,7 @@
            <input type="text" name="q">
            <button type="submit">搜索</button>
     </form>
+    {% for item in items %}
+    <p><a href="/item/{{item["id"]}}">{{item["title"]}}</a>--{{item["price"]}}元</p>
+    {% endfor %}
 {% endblock %}

@@ -58,26 +58,10 @@ def init_db():
 @app.route("/")
 def index():
     msg=request.args.get("msg")
-    return render_template("index.html",msg=msg)
-
-@app.route("/hello")
-def hello():
-    name = request.args.get("username")
-    conn = get_db()
-    conn.execute("INSERT INTO users (name) VALUES (?)", (name,))
-    conn.commit()
+    conn=get_db()
+    rows=conn.execute("SELECT * FROM items ORDER BY id DESC LIMIT 6").fetchall()
     conn.close()
-    return f"你好，{name}！你的名字已经存入数据库"
-
-@app.route("/users")
-def users():
-    conn = get_db()
-    rows = conn.execute("SELECT * FROM users").fetchall()
-    conn.close()
-    result = "数据库里已有这些名字：<br>"
-    for row in rows:
-        result += f"id={row['id']} 名字={row['name']}<br>"
-    return result
+    return render_template("index.html",msg=msg,items=rows)
 
 @app.route("/register")
 def register():
